@@ -1,0 +1,40 @@
+@font-face {
+    font-family: Bender;
+    font-display: swap;
+    src: url(/fonts/Bender.eot);
+    src: url(/fonts/Bender.eot?#iefix) format("embedded-opentype"), url(/fonts/Bender.woff) format("woff"), url(/fonts/Bender.ttf) format("truetype"), url(/fonts/Bender.svg#benderregular) format("svg");
+}
+
+html {
+	background-color: rgb(10,10,10);
+	color: #cccccc;
+	font-family: Bender, Arial;
+}
+
+
+.playlist {
+    display: flex;
+    flex-direction: column;
+    background: rgb(25,25,25);
+    width: 700px;
+    max-width: 100%;
+
+    .song {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        background-color: rgb(70, 70, 70);
+        padding: 5px;
+
+        &:nth-child(even) {
+            background-color: rgb(50, 50, 50)
+        }
+
+        .name {
+            color: white;
+        }
+        .duration {
+            color: white;
+        }
+    }
+}
