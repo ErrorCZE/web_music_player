@@ -5,7 +5,7 @@
   src: url(/fonts/Bender.eot?#iefix) format("embedded-opentype"), url(/fonts/Bender.woff) format("woff"), url(/fonts/Bender.ttf) format("truetype"), url(/fonts/Bender.svg#benderregular) format("svg");
 }
 html {
-  background-color: rgb(10, 10, 10);
+  background-color: rgb(0, 0, 0);
   color: #cccccc;
   font-family: Bender, Arial;
 }
@@ -16,6 +16,20 @@ html {
   background: rgb(25, 25, 25);
   width: 700px;
   max-width: 100%;
+  overflow-x: auto;
+  height: 500px;
+  margin: 0 auto;
+}
+.playlist::-webkit-scrollbar {
+  width: 4px;
+}
+.playlist::-webkit-scrollbar-track {
+  background: #6b6b6b;
+}
+.playlist::-webkit-scrollbar-thumb {
+  background: #ffffff;
+  max-height: 1px;
+  border-radius: 500px;
 }
 .playlist .song {
   display: flex;
@@ -23,6 +37,22 @@ html {
   justify-content: space-between;
   background-color: rgb(70, 70, 70);
   padding: 5px;
+  height: 20px;
+}
+.playlist .song .info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: calc(100% - 35px);
+}
+.playlist .song .removebtn {
+  cursor: pointer;
+  color: rgb(255, 24, 24);
+  font-size: 20px;
+  opacity: 0.8;
+}
+.playlist .song .removebtn:hover {
+  opacity: 1;
 }
 .playlist .song:nth-child(even) {
   background-color: rgb(50, 50, 50);
@@ -32,4 +62,69 @@ html {
 }
 .playlist .song .duration {
   color: white;
+}
+
+.player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 25px;
+}
+.player .controls {
+  display: flex;
+  justify-content: center;
+}
+.player .controls button {
+  margin: 0 5px;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  width: 35px;
+  height: 35px;
+  color: white;
+  background: none;
+  font-size: 17px;
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+}
+.player .controls button:hover {
+  opacity: 1;
+}
+.player .controls #playstop {
+  background: white;
+  color: black;
+  border-radius: 100px;
+}
+.player .timeline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+  margin-top: 25px;
+}
+.player .timeline .timeline-container {
+  width: 500px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.player .timeline .timeline-container .timeline {
+  margin-top: 10px;
+  height: 6px;
+  background-color: #4D4D4D;
+  position: relative;
+  border-radius: 50px;
+}
+.player .timeline .timeline-container .timeline .played {
+  height: 100%;
+  background-color: #1DB954;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50px;
+}
+.player .volume-container #customVolume {
+  height: 5px;
 }/*# sourceMappingURL=main.css.map */

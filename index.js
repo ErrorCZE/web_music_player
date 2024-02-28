@@ -53,22 +53,22 @@ const wss = new WebSocket.Server({ server: httpServer });
 
 wss.on("connection", (ws) => {
 	sendPlaylistToClient(ws);
-  
+
 	fs.watch(path.join(__dirname, "data", "playlist.json"), (eventType) => {
-	  if (eventType === "change") {
-		console.log("Playlist updated. Sending new playlist to clients.");
-		sendPlaylistToClient(ws);
-	  }
+		if (eventType === "change") {
+			console.log("Playlist updated. Sending new playlist to clients.");
+			sendPlaylistToClient(ws);
+		}
 	});
-  });
-  
-  function sendPlaylistToClient(client) {
+});
+
+function sendPlaylistToClient(client) {
 	const playlistPath = path.join(__dirname, "data", "playlist.json");
 	const playlist = JSON.parse(fs.readFileSync(playlistPath));
 	const playlistMessage = JSON.stringify({ type: "playlist", data: playlist });
-  
+
 	client.send(playlistMessage);
-  }
+}
 
 
 
@@ -117,14 +117,48 @@ app.post("/add-song", async (req, res) => {
 			fs.writeFileSync(playlistPath, JSON.stringify(playlist, null, 2));
 
 			console.log('Playlist updated with ' + song.name);
+			res.send("Song added")
 
 		}
 
 	} catch (error) {
+		res.send("Error")
 		console.error(error);
 		res.status(500).send("Error adding song");
 	}
 });
+
+
+app.post('/remove-song', async (req, res) => {
+    try {
+        const { songName } = req.body;
+
+        const playlistPath = path.join(__dirname, 'data', 'playlist.json');
+
+        if (fs.existsSync(playlistPath)) {
+            const playlist = JSON.parse(fs.readFileSync(playlistPath, 'utf-8'));
+
+            const indexToRemove = playlist.findIndex(song => song.name === songName);
+
+            if (indexToRemove !== -1) {
+                const removedSong = playlist.splice(indexToRemove, 1)[0];
+
+                fs.writeFileSync(playlistPath, JSON.stringify(playlist, null, 2));
+
+                res.send('Song removed');
+            } else {
+                res.status(404).send('Song not found in the playlist');
+            }
+        } else {
+            res.status(404).send('Playlist not found');
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error removing song');
+    }
+});
+
+
 
 
 app.get("/get-playlist", (req, res) => {

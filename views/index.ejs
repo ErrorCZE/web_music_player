@@ -6,68 +6,13 @@
 	<title>Music Player</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="/css/main.css?v=2">
-
-	<style>
-		.player {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			margin-top: 20px;
-		}
-
-		audio {
-			width: 300px;
-			margin-bottom: 10px;
-		}
-
-		.controls {
-			display: flex;
-			justify-content: center;
-		}
-
-		button {
-			margin: 0 5px;
-			padding: 5px 10px;
-			cursor: pointer;
-		}
-
-
-		.timeline-container {
-			width: 300px;
-			margin-bottom: 10px;
-			cursor: pointer;
-		}
-
-		.timeline {
-			height: 50px;
-			background-color: #ccc;
-			position: relative;
-		}
-
-		.played {
-			height: 100%;
-			background-color: #4CAF50;
-			position: absolute;
-			top: 0;
-			left: 0;
-		}
-	</style>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
 
-	<div class="playlist">
-		<% playlist.forEach(song=> { %>
-			<div class="song">
-				<div class="name">
-					<%= song.name %>
-				</div>
-				<div class="duration">
-					<%= song.duration %>
-				</div>
-			</div>
-			<% }) %>
-	</div>
+	<div class="playlist"></div>
+
 
 	<div class="player">
 		<audio id="audioPlayer" controls style="display:none">
@@ -75,20 +20,29 @@
 		</audio>
 
 		<div class="controls">
-			<button onclick="skipBack(playlist)">Skip Back</button>
-			<button onclick="togglePlayPause()">Play/Pause</button>
-			<button onclick="skipNext(playlist)">Skip Next</button>
+			<button id="skipback" onclick="skipBack(playlist)"><i class="fa-solid fa-backward-step"></i></button>
+			<button id="playstop" onclick="togglePlayPause()"><i class="fa-solid fa-play"></i></button>
+			<button id="skipforward" onclick="skipNext(playlist)"><i class="fa-solid fa-forward-step"></i></button>
 
 		</div>
-
-		<div class="timeline-container">
-			<div class="timeline" id="customTimeline"></div>
+		<div class="timeline">
+			<div class="time" id="duration-played">0:00</div>
+			<div class="timeline-container">
+				<div class="timeline" id="customTimeline"></div>
+			</div>
+			<div class="time" id="duration-full">0:00</div>
 		</div>
+
+		<div class="volume-container">
+			<input type="range" id="customVolume" min="0" max="1" step="0.01" value="0.2" class="volume-slider">
+		</div>
+
 
 	</div>
 
 	<script>
 		const audioPlayer = document.getElementById('audioPlayer');
+		const durationFullElement = document.getElementById('duration-full');
 		audioPlayer.volume = 0.2;
 		let currentSongIndex = 0;
 		let ws;
@@ -103,6 +57,8 @@
 				audioPlayer.src = `/songs/${encodeCustomURIComponent(song.originalName)}.mp3`;
 				audioPlayer.load();
 				audioPlayer.play();
+
+				durationFullElement.innerText = song.duration;
 			}
 		}
 
@@ -110,19 +66,27 @@
 		function togglePlayPause() {
 			if (audioPlayer.paused) {
 				audioPlayer.play();
+				let btn = document.getElementById("playstop");
+				btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
 			} else {
 				audioPlayer.pause();
+				let btn = document.getElementById("playstop");
+				btn.innerHTML = '<i class="fa-solid fa-play"></i>'
 			}
 		}
 
 		function skipNext(playlist) {
 			currentSongIndex = (currentSongIndex + 1) % playlist.length;
 			loadSong(currentSongIndex, playlist);
+			let btn = document.getElementById("playstop");
+			btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
 		}
 
 		function skipBack(playlist) {
 			currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
 			loadSong(currentSongIndex, playlist);
+			let btn = document.getElementById("playstop");
+			btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
 		}
 
 		audioPlayer.addEventListener('ended', () => {
@@ -133,9 +97,14 @@
 			const playlistDiv = document.querySelector('.playlist');
 			playlistDiv.innerHTML = '';
 
-			playlist.forEach(song => {
+			const currentPlaybackTime = audioPlayer.currentTime;
+
+			playlist.forEach((song, index) => {
 				const songDiv = document.createElement('div');
 				songDiv.classList.add('song');
+
+				const infoDiv = document.createElement('div');
+				infoDiv.classList.add('info');
 
 				const nameDiv = document.createElement('div');
 				nameDiv.classList.add('name');
@@ -145,12 +114,65 @@
 				durationDiv.classList.add('duration');
 				durationDiv.textContent = song.duration;
 
-				songDiv.appendChild(nameDiv);
-				songDiv.appendChild(durationDiv);
+				const removeDiv = document.createElement('div');
+				removeDiv.classList.add('removebtn');
+				removeDiv.innerHTML = '<i id="trashbtn" class="fa-solid fa-trash-can"></i>';
+
+				removeDiv.addEventListener('click', () => {
+					removeSongFromPlaylist(index);
+				});
+
+				infoDiv.appendChild(nameDiv);
+				infoDiv.appendChild(durationDiv);
+
+				songDiv.appendChild(infoDiv);
+				songDiv.appendChild(removeDiv);
 
 				playlistDiv.appendChild(songDiv);
 			});
+
+			const isPlaying = !audioPlayer.paused;
+
+			window.playlist = playlist;
+
+			if (isPlaying) {
+				loadSong(currentSongIndex, window.playlist);
+				audioPlayer.currentTime = currentPlaybackTime;
+				audioPlayer.play();
+			} else {
+				loadSong(currentSongIndex, window.playlist);
+			}
 		}
+
+		function removeSongFromPlaylist(index) {
+			const removedSong = window.playlist.splice(index, 1)[0];
+			updatePlaylistUI(window.playlist);
+
+			fetch('/remove-song', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					songName: removedSong.name,
+				}),
+			})
+				.then(response => {
+					if (response.ok) {
+						console.log('Song removed successfully');
+						return response.text();
+					} else {
+						throw new Error('Server response not okay');
+					}
+				})
+				.then(data => {
+					console.log(data);
+				})
+				.catch(error => {
+					console.error('Error removing song:', error);
+				});
+		}
+
 
 		function initWebSocket() {
 			ws = new WebSocket(`ws://${window.location.host}`);
@@ -173,12 +195,20 @@
 
 		// VLASTNÍ TIMELINE
 		const customTimeline = document.getElementById('customTimeline');
+		const durationPlayedElement = document.getElementById('duration-played');
 		let isDraggingTimeline = false;
 
 		audioPlayer.addEventListener('timeupdate', () => {
 			const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
 			customTimeline.innerHTML = `<div class="played" style="width:${progress}%"></div>`;
+			durationPlayedElement.textContent = formatTime(audioPlayer.currentTime);
 		});
+
+		function formatTime(timeInSeconds) {
+			const minutes = Math.floor(timeInSeconds / 60);
+			const seconds = Math.floor(timeInSeconds % 60);
+			return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+		}
 
 		customTimeline.addEventListener('mousedown', (event) => {
 			isDraggingTimeline = true;
@@ -202,12 +232,21 @@
 			customTimeline.innerHTML = `<div class="played" style="width:${percent}%"></div>`;
 			audioPlayer.currentTime = (percent / 100) * audioPlayer.duration;
 		}
+
+
+		// HLASITOST
+		const customVolume = document.getElementById('customVolume');
+
+		customVolume.addEventListener('input', () => {
+			const volume = customVolume.value;
+			audioPlayer.volume = volume;
+		});
 	</script>
 
 
-<script>
+	<script>
 
-</script>
+	</script>
 
 
 
