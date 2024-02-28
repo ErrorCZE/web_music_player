@@ -11,6 +11,11 @@ html {
     font-family: Bender, Arial;
 }
 
+body {
+    padding: 0px;
+    margin: 0px;
+}
+
 
 .playlist {
     display: flex;
@@ -20,21 +25,21 @@ html {
     max-width: 100%;
     overflow-x: auto;
     height: calc(25*20px); //25x song
-    margin: 0 auto;
+    margin: 10px auto;
 
     &::-webkit-scrollbar {
         width: 4px;
-      }
-      
-      &::-webkit-scrollbar-track {
+    }
+
+    &::-webkit-scrollbar-track {
         background: #858585;
-      }
-       
-      &::-webkit-scrollbar-thumb {
+    }
+
+    &::-webkit-scrollbar-thumb {
         background: #1DB954;
         max-height: 1px;
         border-radius: 500px;
-      }
+    }
 
 
     .song {
@@ -121,11 +126,12 @@ html {
         display: flex;
         flex-direction: row;
         align-items: center;
-        gap: 5px;
+        gap: 15px;
         margin-top: 25px;
 
         .timeline-container {
             width: 500px;
+            max-width: 100%;
             margin-bottom: 10px;
             cursor: pointer;
 
@@ -143,18 +149,190 @@ html {
                     top: 0;
                     left: 0;
                     border-radius: 50px;
+                    max-width: 100%;
+
+                    &::after {
+                        content: '';
+                        width: 10px;
+                        height: 10px;
+                        background-color: white;
+                        position: absolute;
+                        top: -2px;
+                        right: -5px;
+                        border-radius: 50%;
+                    }
                 }
             }
         }
     }
 
-
-
-
     .volume-container {
-        #customVolume {
-            height: 5px;
+        display: inline-flex;
+        align-content: center;
+        align-items: center;
+        margin-top: 15px;
+
+        .icon {
+            color: white;
+            margin-right: 5px;
         }
 
+        #customVolume {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            cursor: pointer;
+            outline: none;
+            overflow: hidden;
+            border-radius: 16px;
+        }
+
+        #customVolume::-webkit-slider-runnable-track {
+            height: 10px;
+            background: #4D4D4D;
+        }
+
+        #customVolume::-moz-range-track {
+            height: 10px;
+            background: #4D4D4D;
+            border-radius: 16px;
+        }
+
+        #customVolume::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 10px;
+            width: 10px;
+            background-color: white;
+            border-radius: 50%;
+            box-shadow: -407px 0 0 400px #1DB954;
+        }
+
+
+    }
+
+    .currentsong {
+        margin-top: 10px;
+
+        .name {
+            color: #1DB954;
+        }
+    }
+}
+
+
+.opensettings {
+    position: absolute;
+    left: 10px;
+    font-size: 35px;
+    color: #1DB954;
+    cursor: pointer;
+}
+
+
+.settings {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background-color: rgb(48, 48, 48);
+    border: solid 2px #1DB954;
+    padding: 10px;
+    border-radius: 7px;
+    display: none;
+
+    .closebtn {
+        width: fit-content;
+        position: inherit;
+        left: 489px;
+        top: 5px;
+        font-size: 25px;
+        color: white;
+
+        cursor: pointer;
+    }
+
+
+    .refreshbtn {
+        width: fit-content;
+        position: inherit;
+        top: 5px;
+        font-size: 25px;
+        color: white;
+        cursor: pointer;
+    }
+
+
+
+    .infopanel {
+        display: flex;
+        flex-direction: column;
+        margin-top: 15px;
+        gap: 10px;
+
+        .heading {
+            width: 100%;
+            text-align: center;
+            color: #ffffff;
+            text-transform: uppercase;
+            font-size: 40px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .infobox {
+            display: inline-flex;
+            color: white;
+            font-size: 23px;
+            font-weight: bold;
+
+
+            .value {
+                font-weight: 300;
+                color: #1DB954;
+            }
+
+            .metricsTag {
+                color: #1DB954;
+            }
+        }
+
+
+        .btn {
+            width: 100%;
+            height: 45px;
+            border: none;
+            cursor: pointer;
+            border-radius: 7px;
+            background-color: #1DB954;
+            opacity: .8;
+
+            &:hover {
+                opacity: 1;
+            }
+
+            &:disabled {
+                cursor: default;
+                background-color: gray;
+
+                &:hover {
+                    opacity: .8;
+                }
+            }
+        }
+
+        #deleteall {
+            margin-top: 30px;
+            background-color: transparent;
+            border: solid red 2px;
+            color: red;
+            font-weight: bold;
+
+            &:hover {
+                text-transform: uppercase;
+                background-color: red;
+                color: black;
+                box-shadow: 0 0 20px rgba(255, 0, 0, 0.904);
+            }
+        }
     }
 }

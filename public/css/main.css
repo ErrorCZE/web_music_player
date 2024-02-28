@@ -10,6 +10,11 @@ html {
   font-family: Bender, Arial;
 }
 
+body {
+  padding: 0px;
+  margin: 0px;
+}
+
 .playlist {
   display: flex;
   flex-direction: column;
@@ -18,7 +23,7 @@ html {
   max-width: 100%;
   overflow-x: auto;
   height: 500px;
-  margin: 0 auto;
+  margin: 10px auto;
 }
 .playlist::-webkit-scrollbar {
   width: 4px;
@@ -102,11 +107,12 @@ html {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 5px;
+  gap: 15px;
   margin-top: 25px;
 }
 .player .timeline .timeline-container {
   width: 500px;
+  max-width: 100%;
   margin-bottom: 10px;
   cursor: pointer;
 }
@@ -124,7 +130,157 @@ html {
   top: 0;
   left: 0;
   border-radius: 50px;
+  max-width: 100%;
+}
+.player .timeline .timeline-container .timeline .played::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background-color: white;
+  position: absolute;
+  top: -2px;
+  right: -5px;
+  border-radius: 50%;
+}
+.player .volume-container {
+  display: inline-flex;
+  align-content: center;
+  align-items: center;
+  margin-top: 15px;
+}
+.player .volume-container .icon {
+  color: white;
+  margin-right: 5px;
 }
 .player .volume-container #customVolume {
-  height: 5px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+       appearance: none;
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  border-radius: 16px;
+}
+.player .volume-container #customVolume::-webkit-slider-runnable-track {
+  height: 10px;
+  background: #4D4D4D;
+}
+.player .volume-container #customVolume::-moz-range-track {
+  height: 10px;
+  background: #4D4D4D;
+  border-radius: 16px;
+}
+.player .volume-container #customVolume::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 10px;
+  width: 10px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: -407px 0 0 400px #1DB954;
+}
+.player .currentsong {
+  margin-top: 10px;
+}
+.player .currentsong .name {
+  color: #1DB954;
+}
+
+.opensettings {
+  position: absolute;
+  left: 10px;
+  font-size: 35px;
+  color: #1DB954;
+  cursor: pointer;
+}
+
+.settings {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background-color: rgb(48, 48, 48);
+  border: solid 2px #1DB954;
+  padding: 10px;
+  border-radius: 7px;
+  display: none;
+}
+.settings .closebtn {
+  width: -moz-fit-content;
+  width: fit-content;
+  position: inherit;
+  left: 489px;
+  top: 5px;
+  font-size: 25px;
+  color: white;
+  cursor: pointer;
+}
+.settings .refreshbtn {
+  width: -moz-fit-content;
+  width: fit-content;
+  position: inherit;
+  top: 5px;
+  font-size: 25px;
+  color: white;
+  cursor: pointer;
+}
+.settings .infopanel {
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
+  gap: 10px;
+}
+.settings .infopanel .heading {
+  width: 100%;
+  text-align: center;
+  color: #ffffff;
+  text-transform: uppercase;
+  font-size: 40px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.settings .infopanel .infobox {
+  display: inline-flex;
+  color: white;
+  font-size: 23px;
+  font-weight: bold;
+}
+.settings .infopanel .infobox .value {
+  font-weight: 300;
+  color: #1DB954;
+}
+.settings .infopanel .infobox .metricsTag {
+  color: #1DB954;
+}
+.settings .infopanel .btn {
+  width: 100%;
+  height: 45px;
+  border: none;
+  cursor: pointer;
+  border-radius: 7px;
+  background-color: #1DB954;
+  opacity: 0.8;
+}
+.settings .infopanel .btn:hover {
+  opacity: 1;
+}
+.settings .infopanel .btn:disabled {
+  cursor: default;
+  background-color: gray;
+}
+.settings .infopanel .btn:disabled:hover {
+  opacity: 0.8;
+}
+.settings .infopanel #deleteall {
+  margin-top: 30px;
+  background-color: transparent;
+  border: solid red 2px;
+  color: red;
+  font-weight: bold;
+}
+.settings .infopanel #deleteall:hover {
+  text-transform: uppercase;
+  background-color: red;
+  color: black;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.904);
 }/*# sourceMappingURL=main.css.map */

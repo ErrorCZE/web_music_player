@@ -116,8 +116,7 @@ app.post("/add-song", async (req, res) => {
 			playlist.push(newSong);
 			fs.writeFileSync(playlistPath, JSON.stringify(playlist, null, 2));
 
-			console.log('Playlist updated with ' + song.name);
-			res.send("Song added")
+			res.send(song.name)
 
 		}
 
@@ -130,35 +129,91 @@ app.post("/add-song", async (req, res) => {
 
 
 app.post('/remove-song', async (req, res) => {
-    try {
-        const { songName } = req.body;
+	try {
+		const { songName } = req.body;
 
-        const playlistPath = path.join(__dirname, 'data', 'playlist.json');
+		const playlistPath = path.join(__dirname, 'data', 'playlist.json');
 
-        if (fs.existsSync(playlistPath)) {
-            const playlist = JSON.parse(fs.readFileSync(playlistPath, 'utf-8'));
+		if (fs.existsSync(playlistPath)) {
+			const playlist = JSON.parse(fs.readFileSync(playlistPath, 'utf-8'));
 
-            const indexToRemove = playlist.findIndex(song => song.name === songName);
+			const indexToRemove = playlist.findIndex(song => song.name === songName);
 
-            if (indexToRemove !== -1) {
-                const removedSong = playlist.splice(indexToRemove, 1)[0];
+			if (indexToRemove !== -1) {
+				const removedSong = playlist.splice(indexToRemove, 1)[0];
 
-                fs.writeFileSync(playlistPath, JSON.stringify(playlist, null, 2));
+				fs.writeFileSync(playlistPath, JSON.stringify(playlist, null, 2));
 
-                res.send('Song removed');
-            } else {
-                res.status(404).send('Song not found in the playlist');
-            }
-        } else {
-            res.status(404).send('Playlist not found');
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error removing song');
-    }
+				res.send('Song removed');
+			} else {
+				res.status(404).send('Song not found in the playlist');
+			}
+		} else {
+			res.status(404).send('Playlist not found');
+		}
+	} catch (error) {
+		console.error(error);
+		res.status(500).send('Error removing song');
+	}
 });
 
 
+app.post('/clear-playlist', async (req, res) => {
+	try {
+		const playlistPath = path.join(__dirname, 'data', 'playlist.json');
+		fs.writeFileSync(playlistPath, JSON.stringify([], null, 2));
+		res.status(204).send();
+
+	} catch (error) {
+		console.error(error);
+		res.status(500).send('Error clearing playlist');
+	}
+});
+
+
+app.post('/delete-songs', async (req, res) => {
+	try {
+		const playlistPath = path.join(__dirname, 'data', 'playlist.json');
+
+		fs.writeFileSync(playlistPath, JSON.stringify([], null, 2));
+
+		const songsDir = path.join(__dirname, 'data', 'songs');
+		fs.readdirSync(songsDir).forEach(file => {
+			if (file.endsWith('.mp3')) {
+				fs.unlinkSync(path.join(songsDir, file));
+			}
+		});
+
+		res.status(204).send();
+
+	} catch (error) {
+		console.error(error);
+		res.status(500).send('Error clearing playlist and deleting mp3 files');
+	}
+});
+
+
+app.post('/get-stats', async (req, res) => {
+    try {
+        const songsDir = path.join(__dirname, 'data', 'songs');
+
+        const mp3Files = fs.readdirSync(songsDir).filter(file => file.endsWith('.mp3'));
+
+        const totalSizeGB = mp3Files.reduce((acc, file) => {
+            const filePath = path.join(songsDir, file);
+            const stats = fs.statSync(filePath);
+            return acc + stats.size;
+        }, 0) / (1024 * 1024 * 1024);
+
+        const mp3Count = mp3Files.length;
+
+        res.status(200).json({ songCount: mp3Count, totalSizeGB: totalSizeGB.toFixed(3) });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error getting song count and size');
+    }
+});
 
 
 app.get("/get-playlist", (req, res) => {

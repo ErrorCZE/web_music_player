@@ -10,6 +10,40 @@
 </head>
 
 <body>
+	<div class="opensettings" id="opensettingsbtn"><i class="fa-solid fa-bars"></i></div>
+
+	<div class="settings" id="settingspanel">
+		<div class="closebtn" id="settingsclosebtn"><i class="fa-regular fa-circle-xmark"></i></div>
+
+		<div class="refreshbtn" id="refreshbtn"><i class="fa-solid fa-rotate-right"></i></div>
+
+		<div class="infopanel" id="infopanel">
+			<div class="heading">Information</div>
+			<div class="infobox">Downloaded songs: <div id="songcount" class="value">3333</div>
+			</div>
+			<div class="infobox">Overall size: <div id="songsize" class="value">3333</div>
+				<div class="metricsTag"> GB</div>
+			</div>
+		</div>
+
+
+		<div class="infopanel" style="margin-top:40px">
+			<div class="heading">Settings</div>
+
+			<form method='post' action="/clear-playlist">
+				<button class="btn">Clear playlist</button>
+			</form>
+
+			<button class="btn" disabled>Pause requests</button>
+
+			<form method='post' action="/delete-songs">
+				<button class="btn" id="deleteall">Delete all downloaded songs & clear playlist</button>
+			</form>
+
+
+		</div>
+	</div>
+
 
 	<div class="playlist"></div>
 
@@ -23,8 +57,12 @@
 			<button id="skipback" onclick="skipBack(playlist)"><i class="fa-solid fa-backward-step"></i></button>
 			<button id="playstop" onclick="togglePlayPause()"><i class="fa-solid fa-play"></i></button>
 			<button id="skipforward" onclick="skipNext(playlist)"><i class="fa-solid fa-forward-step"></i></button>
-
 		</div>
+
+		<div class="currentsong">
+			<div id="currentsongname" class="name"></div>
+		</div>
+
 		<div class="timeline">
 			<div class="time" id="duration-played">0:00</div>
 			<div class="timeline-container">
@@ -33,16 +71,22 @@
 			<div class="time" id="duration-full">0:00</div>
 		</div>
 
+
 		<div class="volume-container">
+			<div class="icon"><i class="fa-solid fa-volume-high"></i></div>
 			<input type="range" id="customVolume" min="0" max="1" step="0.01" value="0.2" class="volume-slider">
 		</div>
+
+
 
 
 	</div>
 
 	<script>
 		const audioPlayer = document.getElementById('audioPlayer');
+		audioPlayer.preload = 'auto';
 		const durationFullElement = document.getElementById('duration-full');
+		const currentsongname = document.getElementById('currentsongname');
 		audioPlayer.volume = 0.2;
 		let currentSongIndex = 0;
 		let ws;
@@ -54,13 +98,19 @@
 		function loadSong(index, playlist) {
 			const song = playlist[index];
 			if (song) {
+				const wasPlaying = !audioPlayer.paused;  // Check if audioPlayer was playing before updating
 				audioPlayer.src = `/songs/${encodeCustomURIComponent(song.originalName)}.mp3`;
 				audioPlayer.load();
-				audioPlayer.play();
+				if (wasPlaying) {
+					audioPlayer.play();
+				}
 
 				durationFullElement.innerText = song.duration;
+				currentsongname.innerText = song.name;
 			}
 		}
+
+
 
 
 		function togglePlayPause() {
@@ -80,6 +130,7 @@
 			loadSong(currentSongIndex, playlist);
 			let btn = document.getElementById("playstop");
 			btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+			audioPlayer.play();
 		}
 
 		function skipBack(playlist) {
@@ -87,6 +138,7 @@
 			loadSong(currentSongIndex, playlist);
 			let btn = document.getElementById("playstop");
 			btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+			audioPlayer.play();
 		}
 
 		audioPlayer.addEventListener('ended', () => {
@@ -98,6 +150,7 @@
 			playlistDiv.innerHTML = '';
 
 			const currentPlaybackTime = audioPlayer.currentTime;
+			const wasPlaying = !audioPlayer.paused;
 
 			playlist.forEach((song, index) => {
 				const songDiv = document.createElement('div');
@@ -131,16 +184,16 @@
 				playlistDiv.appendChild(songDiv);
 			});
 
-			const isPlaying = !audioPlayer.paused;
-
 			window.playlist = playlist;
 
-			if (isPlaying) {
+			if (wasPlaying) {
 				loadSong(currentSongIndex, window.playlist);
 				audioPlayer.currentTime = currentPlaybackTime;
 				audioPlayer.play();
 			} else {
 				loadSong(currentSongIndex, window.playlist);
+				audioPlayer.currentTime = currentPlaybackTime;
+				audioPlayer.pause();
 			}
 		}
 
@@ -160,6 +213,7 @@
 				.then(response => {
 					if (response.ok) {
 						console.log('Song removed successfully');
+						getStats();
 						return response.text();
 					} else {
 						throw new Error('Server response not okay');
@@ -183,6 +237,8 @@
 					updatePlaylistUI(window.playlist);
 
 					loadSong(currentSongIndex, window.playlist);
+
+					getStats();
 				}
 			});
 			ws.addEventListener('close', () => {
@@ -241,10 +297,49 @@
 			const volume = customVolume.value;
 			audioPlayer.volume = volume;
 		});
-	</script>
 
 
-	<script>
+
+		document.addEventListener('DOMContentLoaded', function () {
+			const opensettings = document.getElementById('opensettingsbtn');
+			const settingspanel = document.getElementById('settingspanel');
+			const settingsclosebtn = document.getElementById('settingsclosebtn');
+			const refreshbtn = document.getElementById('refreshbtn');
+
+			getStats();
+
+			opensettings.addEventListener('click', function () {
+				settingspanel.style.display = 'block';
+			});
+
+			settingsclosebtn.addEventListener('click', function () {
+				settingspanel.style.display = 'none';
+			});
+
+			refreshbtn.addEventListener('click', function () {
+				getStats();
+			});
+
+		});
+
+
+		function getStats() {
+			fetch('/get-stats', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+			})
+				.then(response => response.json())
+				.then(data => {
+					const songCountDiv = document.getElementById('songcount');
+					const songSizeDiv = document.getElementById('songsize');
+					songCountDiv.textContent = `${data.songCount}`;
+					songSizeDiv.textContent = `${data.totalSizeGB}`;
+				})
+				.catch(error => console.error('Error fetching song stats:', error));
+		}
+
 
 	</script>
 
