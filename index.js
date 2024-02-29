@@ -3,12 +3,10 @@ const app = express();
 var bodyParser = require("body-parser");
 const http = require("http");
 var fs = require("fs");
-const axios = require("axios");
 const path = require("path");
 const compression = require("compression");
 const ytdl = require("ytdl-core");
 const ytsr = require('@distube/ytsr');
-require("dotenv").config();
 
 
 app.set("view engine", "ejs");

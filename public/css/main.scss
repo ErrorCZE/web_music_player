@@ -5,6 +5,20 @@
     src: url(/fonts/Bender.eot?#iefix) format("embedded-opentype"), url(/fonts/Bender.woff) format("woff"), url(/fonts/Bender.ttf) format("truetype"), url(/fonts/Bender.svg#benderregular) format("svg");
 }
 
+@font-face {
+  font-display: swap;
+  font-family: "Industry";
+  font-style: normal;
+  src: url(/fonts/Industry-Bold.woff) format("woff");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: "Industry Black";
+  font-style: normal;
+  src: url(/fonts/Industry-Black.woff) format("woff");
+}
+
 html {
     background-color: rgb(0, 0, 0);
     color: #cccccc;
@@ -231,11 +245,12 @@ body {
 
 
 .settings {
+    font-family: "Industry";
     position: absolute;
     width: 500px;
     height: 500px;
     background-color: rgb(48, 48, 48);
-    border: solid 2px #1DB954;
+    border: solid 1px #1DB954;
     padding: 10px;
     border-radius: 7px;
     display: none;
@@ -277,6 +292,8 @@ body {
             font-size: 40px;
             font-weight: bold;
             margin-bottom: 10px;
+            font-family: "Industry Black";
+
         }
 
         .infobox {
@@ -284,15 +301,18 @@ body {
             color: white;
             font-size: 23px;
             font-weight: bold;
+            font-family: "Industry Black";
 
 
             .value {
                 font-weight: 300;
                 color: #1DB954;
+                font-family: "Industry";
             }
 
             .metricsTag {
                 color: #1DB954;
+                font-family: "Industry";
             }
         }
 
@@ -305,6 +325,8 @@ body {
             border-radius: 7px;
             background-color: #1DB954;
             opacity: .8;
+            font-family: "Industry";
+            font-size: 17px;
 
             &:hover {
                 opacity: 1;
@@ -326,12 +348,15 @@ body {
             border: solid red 2px;
             color: red;
             font-weight: bold;
+            text-transform: uppercase;
+            text-shadow: 0 2px 2px black;
 
             &:hover {
                 text-transform: uppercase;
                 background-color: red;
                 color: black;
                 box-shadow: 0 0 20px rgba(255, 0, 0, 0.904);
+                text-shadow: none;
             }
         }
     }
